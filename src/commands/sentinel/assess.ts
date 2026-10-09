@@ -55,7 +55,7 @@ export default class SentinelAssess extends Command {
         `Files: ${a.files.map((f) => `${f.type} ${f.path}`).join(', ') || 'none'}.`
       try {
         const timeout = Math.max(30, Math.min(600, (flags.timeout as number) ?? 120))
-        const out = runAgentia(['ai', 'agent', 'ask', '-p', prompt, '--agent', 'operate', '--json'], AI_TIMEOUT_MS)
+        const out = runAgentia(['ai', 'agent', 'ask', '-p', prompt, '--agent', 'operate', '--json'], timeout * 1000)
         const parsed = JSON.parse(out)
         const root = (parsed as Record<string, unknown>)?.result ?? parsed
         aiNarration =
