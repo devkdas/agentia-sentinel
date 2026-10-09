@@ -1,0 +1,41 @@
+{
+  "name": "agentia-sentinel",
+  "version": "0.1.0",
+  "description": "AI-assisted change impact and release risk reports for Agentia CLI",
+  "author": "Kartheek Dasari",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "main": "dist/index.js",
+  "files": [
+    "/dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@oclif/core": "^4"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "typescript": "^5"
+  },
+  "oclif": {
+    "commands": "./dist/commands",
+    "topics": {
+      "sentinel": {
+        "description": "Change impact and release risk intelligence"
+      }
+    }
+  },
+  "keywords": [
+    "agentia",
+    "oclif-plugin",
+    "copado",
+    "risk",
+    "impact"
+  ]
+}
