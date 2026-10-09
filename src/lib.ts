@@ -230,43 +230,62 @@ export function assess(input: {storyId: string | null; rawFiles: Array<{path: st
 export function renderHuman(a: Assessment, storyLabel: string): string[] {
   const lines: string[] = []
   lines.push('Agentia Sentinel')
-  lines.push(`Story: ${a.story.found ? `${a.story.id}${a.story.title ? ` (${a.story.title})` : ''}` : storyLabel}`)
-  lines.push(`Change: ${a.files.length} file${a.files.length === 1 ? '' : 's'}${a.gitRepo ? '' : ' (offline list, not a git repo)'}`)
+  lines.push('────────────────────────────────────────────')
   lines.push('')
+  
+  const displayStory = a.story.found ? a.story.id : storyLabel
+  lines.push(`Story: ${displayStory}`)
+  
+  const changeBits = [`${a.files.length} file${a.files.length === 1 ? '' : 's'}`]
+  if (a.story.found && a.story.title) changeBits.push(a.story.title)
+  if (!a.gitRepo) changeBits.push('offline list')
+  const displayChange = changeBits.join(', ')
+  lines.push(`Change: ${displayChange}`)
+  lines.push('')
+  
   lines.push(`Risk Score: ${a.score} / 100`)
   lines.push(`Risk Level: ${a.band}`)
   lines.push('')
+  
+  if (a.files.length > 0 || a.references.length > 0) {
+    lines.push('⚠ Impact Detected')
+    lines.push('')
+  }
+  
+  if (a.files.length > 0) {
+    lines.push('Directly Modified:')
+    for (const f of a.files.slice(0, 15)) {
+      const name = f.path.split('/').pop() || f.path
+      lines.push(`  • ${name}`)
+    }
+    if (a.files.length > 15) lines.push(`  ... and ${a.files.length - 15} more`)
+    lines.push('')
+  }
+  
+  const indirects = [...a.references.map(r => r.name), ...a.businessAreas]
+  if (indirects.length > 0) {
+    lines.push('Indirectly Impacted:')
+    for (const item of indirects) {
+      lines.push(`  • ${item}`)
+    }
+    lines.push('')
+  }
+
   lines.push('Factors:')
   for (const f of a.factors) {
     lines.push(`  +${f.points} ${f.name}: ${f.reason}`)
   }
-  if (a.files.length > 0) {
-    lines.push('')
-    lines.push('Changed files:')
-    for (const f of a.files.slice(0, 15)) {
-      lines.push(`  ${f.type} ${f.path}`)
-    }
-    if (a.files.length > 15) lines.push(`  ... and ${a.files.length - 15} more`)
-  }
-  if (a.references.length > 0) {
-    lines.push('')
-    lines.push('Local references:')
-    for (const r of a.references) {
-      lines.push(`  ${r.name} referenced by ${r.referencedBy} file${r.referencedBy === 1 ? '' : 's'}`)
-    }
-  }
-  if (a.businessAreas.length > 0) {
-    lines.push('')
-    lines.push(`Business areas: ${a.businessAreas.join(', ')}`)
-  }
+  
   if (a.missing.length > 0) {
     lines.push('')
     lines.push('Missing validation:')
     for (const m of a.missing) lines.push(`  - ${m}`)
   }
+  
   lines.push('')
-  lines.push(`Readiness: ${a.readiness}`)
-  lines.push(`Next: ${a.next}`)
+  lines.push(`Release readiness: ${a.readiness}`)
+  lines.push(`Recommended next action: ${a.next}`)
+  
   return lines
 }
 
